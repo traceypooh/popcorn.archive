@@ -6,7 +6,8 @@
 (function( Popcorn, document ) {
 
   var debug=true;
-  var flash=false;
+  var MIN_WIDTH = 320;
+  var MIN_HEIGHT = 240;
 
   window.iaplayer={};
     
@@ -36,6 +37,7 @@
       playerReady:false,
       flash:false,
       autoPlay:false,
+      impl:null,
       
       setup:function(){
         // this allows us to find the best video(/audio) file to play!
@@ -46,8 +48,8 @@
 
       
       init:function( itemMetadata ){
-        var width=(debug ? 320 : 640);//xxxx
-        var height=(debug ? 240 : 480) + (debug ? 30 : 0);//xxxx
+        var width =(debug ? MIN_WIDTH  : 2*MIN_WIDTH);
+        var height=(debug ? MIN_HEIGHT : 2*MIN_HEIGHT) + (debug ? 30 : 0);//xxxx
         
         var bestfi=false;
         var audio=false;
@@ -163,6 +165,32 @@
     //media._canPlaySrc = canPlaySrc;
 
 
+    
+    var EMPTY_STRING = "";
+
+    window.iaplayer[id].impl = {
+        src: EMPTY_STRING,
+        networkState: self.NETWORK_EMPTY,
+        readyState: self.HAVE_NOTHING,
+        seeking: false,
+        autoplay: EMPTY_STRING,
+        preload: EMPTY_STRING,
+        controls: false,
+        loop: false,
+        poster: EMPTY_STRING,
+        volume: 1,
+        muted: 0,
+        currentTime: 0,
+        duration: NaN,
+        ended: false,
+        paused: true,
+        width: parent.width|0   ? parent.width  : MIN_WIDTH,
+        height: parent.height|0 ? parent.height : MIN_HEIGHT,
+        error: null
+    };
+
+
+    
     var player=window.iaplayer[id];
 
     media.play = function(){
@@ -174,9 +202,8 @@
       player.flash.sendEvent('PLAY', false);
     };
 
-    
-    var impl = window.impl;//xxxxx
-    
+
+
     var isMuted = function() {
       if (!player.playerReady) 
         return false;
@@ -186,10 +213,10 @@
     Object.defineProperties( media, {
       src: {
         get: function() {
-          return impl.src;
+          return player.impl.src;
         },
         set: function( aSrc ) {
-          if( aSrc && aSrc !== impl.src ) {
+          if( aSrc && aSrc !== player.impl.src ) {
             log(aSrc);
             //changeSrc( aSrc );//xxxxxxx
           }
@@ -235,23 +262,23 @@
       currentTime:{
         set:function( val ){
           if (!player.playerReady)
-            return impl.currentTime;
+            return player.impl.currentTime;
           
           if ( !val )
-            return impl.currentTime;
+            return player.impl.currentTime;
 
-          impl.currentTime = +val;
+          player.impl.currentTime = +val;
           seeking = true;
 
           //media.dispatchEvent( "seeked" );//xxxx
           //media.dispatchEvent( "timeupdate" );//xxxx
               
-          player.flash.sendEvent("SEEK", impl.currentTime ); // (float #seconds)
+          player.flash.sendEvent("SEEK", player.impl.currentTime ); // (float #seconds)
           
-          return impl.currentTime;
+          return player.impl.currentTime;
         },
         get:function( ){
-          return impl.currentTime;
+          return player.impl.currentTime;
         }
       }
     });
@@ -271,32 +298,7 @@
     var parent = typeof id === "string" ? document.getElementById( id ) : id;//xxx
    
     var self = this;
-    var EMPTY_STRING = "",
-      MIN_WIDTH = 320,
-      MIN_HEIGHT = 240;
 
-    window.impl = {
-        src: EMPTY_STRING,
-        networkState: self.NETWORK_EMPTY,
-        readyState: self.HAVE_NOTHING,
-        seeking: false,
-        autoplay: EMPTY_STRING,
-        preload: EMPTY_STRING,
-        controls: false,
-        loop: false,
-        poster: EMPTY_STRING,
-        volume: 1,
-        muted: 0,
-        currentTime: 0,
-        duration: NaN,
-        ended: false,
-        paused: true,
-        width: parent.width|0   ? parent.width  : MIN_WIDTH,
-        height: parent.height|0 ? parent.height : MIN_HEIGHT,
-        error: null
-    };
-    
-    
     // Namespace all events we'll produce
     self._eventNamespace = Popcorn.guid( "HTMLArchiveVideoElement::" );
 
