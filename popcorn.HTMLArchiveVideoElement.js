@@ -12,35 +12,45 @@
   window.iaplayer={};
     
   var log = function(obj){
-    if (debug  &&  typeof console !='undefined'){
-      console.log('================================');
+    if (debug  &&  typeof console !='undefined')
       console.log(obj);
-      console.log('================================');
-    }
   };
 
 
-  function canPlaySrc( src ) {
-    // We can't really know based on URL.
-    log('canPS');
-    return "maybe";
-  }
-
-  
-
-   
-  function wrapMedia( id, mediaType, callerSelf ) {
+  function wrapMedia( id, callerSelf, parent ) {
+    var EMPTY_STRING = "";
 
     window.iaplayer[id] = {
-      iaid:'commute',//xxx media.src.match(/([^/]+)$/)[0];
+      iaid:'camels',//xxx
       id:id,
       playerReady:false,
       flash:false,
       autoPlay:false,
-      impl:null,
+      impl:{
+        src: EMPTY_STRING,
+        networkState: callerSelf.NETWORK_EMPTY,
+        readyState: callerSelf.HAVE_NOTHING,
+        seeking: false,
+        autoplay: EMPTY_STRING,
+        preload: EMPTY_STRING,
+        controls: false,
+        loop: false,
+        poster: EMPTY_STRING,
+        volume: 1,
+        muted: 0,
+        currentTime: 0,
+        duration: NaN,
+        ended: false,
+        paused: true,
+        width: parent.width|0   ? parent.width  : MIN_WIDTH,
+        height: parent.height|0 ? parent.height : MIN_HEIGHT,
+        error: null
+      },
       
       setup:function(){
-        // this allows us to find the best video(/audio) file to play!
+        // Get the item metadata from archive.org for the given item/identifier.
+        // This allows us to find the best video(/audio) file to play!
+        // When we have the JSON in hand, call "init()".
         var me=window.iaplayer[id];
         Popcorn.getJSONP("http://archive.org/metadata/"+me.iaid+"?&callback=jsonp", 
                         me.init );
@@ -53,7 +63,7 @@
         
         var bestfi=false;
         var audio=false;
-        log(itemMetadata.files);
+        //log(itemMetadata.files);
         // find best flash playable IA "derivative" for video
         for (i=0; i<itemMetadata.files.length; i++)
         {
@@ -101,7 +111,7 @@
         //  extend options from user to flashvars.
         var options=[];
     
-        Popcorn.extend( flashvars, options );
+        Popcorn.extend( flashvars, options ); // like I have any idea what this does... 8-p
 
         params = {allowscriptaccess: "always",
                   allowfullscreen: "true",
@@ -113,22 +123,24 @@
         swfobject.embedSWF("http://archive.org/jw/player.swf", id,
                            width, (audio ? 60 : height), "9.0.0", "expressInstall.swf",
                            flashvars, params, attributes );
-        log(me.playerReady);
       },
 
       
       stateChanged:function( val ){
-        log('statechanged '+val);//xxx
+        log('statechanged: '+val.oldstate+' ==> '+val.newstate);//xxx
       },
-      timed:function( val ){ //xxx
+      timed:function( val ){
+        this.impl.currentTime = val.position;
       },
       buffered:function( val ){ //xxx
       },
       loaded:function( val ){ //xxx
       },
-      volumed:function( val ){ //xxx
+      volumed:function( val ){
+        this.impl.volume = val.percentage / 100;
       },
-      muted:function( val ){ //xxx
+      muted:function( val ){
+        this.impl.muted = (val.state ? 1 : 0);
       },
       errored:function( val ){ //xxx
       },
@@ -159,32 +171,9 @@
 
     // Add the helper function _canPlaySrc so this works like other wrappers.
     
-    var media = document.createElement( mediaType );
+    var media = document.createElement('video');
+    window.iaplayer[id].media=media; // stash a pointer for debugging/aid
     
-    var parent = typeof id === "string" ? document.getElementById( id ) : id;//xxx
-    var EMPTY_STRING = "";
-
-    window.iaplayer[id].impl = {
-        src: EMPTY_STRING,
-        networkState: callerSelf.NETWORK_EMPTY,
-        readyState: callerSelf.HAVE_NOTHING,
-        seeking: false,
-        autoplay: EMPTY_STRING,
-        preload: EMPTY_STRING,
-        controls: false,
-        loop: false,
-        poster: EMPTY_STRING,
-        volume: 1,
-        muted: 0,
-        currentTime: 0,
-        duration: NaN,
-        ended: false,
-        paused: true,
-        width: parent.width|0   ? parent.width  : MIN_WIDTH,
-        height: parent.height|0 ? parent.height : MIN_HEIGHT,
-        error: null
-    };
-
 
     
     var player=window.iaplayer[id];
@@ -213,8 +202,14 @@
         },
         set: function( aSrc ) {
           if( aSrc && aSrc !== player.impl.src ) {
-            log(aSrc);
-            //changeSrc( aSrc );//xxxxxxx
+            player.impl.src = aSrc;
+            var tmp=aSrc.match(/archive\.org\/download\/([^\/]+)/);
+            if (!tmp  ||  tmp.length != 2){
+              alert('does not appear to be a valid "http://archive.org" download (perma)link.  cannot proceed.');
+              return;
+            }
+            player.iaid = tmp[1];
+            log('changeSrc: '+aSrc+', iaid: '+player.iaid);
           }
         }
       },
@@ -243,7 +238,7 @@
 
           if ( volNow !== val ) {
             player.flash.sendEvent("VOLUME", val * 100 );
-            //media.dispatchEvent( "volumechange" );//xxxx
+            //media.dispatchEvent( "volumechange" );//xxx
           }
 
           return volNow;
@@ -263,11 +258,11 @@
           if ( !val )
             return player.impl.currentTime;
 
-          player.impl.currentTime = +val;
+          player.impl.currentTime = Math.max(0,val);
           seeking = true;
 
-          //media.dispatchEvent( "seeked" );//xxxx
-          //media.dispatchEvent( "timeupdate" );//xxxx
+          //media.dispatchEvent( "seeked" );//xxx
+          //media.dispatchEvent( "timeupdate" );//xxx
               
           player.flash.sendEvent("SEEK", player.impl.currentTime ); // (float #seconds)
           
@@ -305,7 +300,7 @@
 
 
     log("new HTMLArchiveVideoElement()");
-    return wrapMedia( id, "video", self );
+    return wrapMedia( id, self, parent );
   };
 
 
