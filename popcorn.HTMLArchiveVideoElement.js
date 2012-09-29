@@ -29,7 +29,7 @@
   
 
    
-  function wrapMedia( id, mediaType ) {
+  function wrapMedia( id, mediaType, callerSelf ) {
 
     window.iaplayer[id] = {
       iaid:'commute',//xxx media.src.match(/([^/]+)$/)[0];
@@ -160,18 +160,14 @@
     // Add the helper function _canPlaySrc so this works like other wrappers.
     
     var media = document.createElement( mediaType );
-    //var media = document.getElementById( id );
-    //parent.appendChild( media );
-    //media._canPlaySrc = canPlaySrc;
-
-
     
+    var parent = typeof id === "string" ? document.getElementById( id ) : id;//xxx
     var EMPTY_STRING = "";
 
     window.iaplayer[id].impl = {
         src: EMPTY_STRING,
-        networkState: self.NETWORK_EMPTY,
-        readyState: self.HAVE_NOTHING,
+        networkState: callerSelf.NETWORK_EMPTY,
+        readyState: callerSelf.HAVE_NOTHING,
         seeking: false,
         autoplay: EMPTY_STRING,
         preload: EMPTY_STRING,
@@ -308,9 +304,8 @@
     self._util.type = "Archive";
 
 
-
     log("new HTMLArchiveVideoElement()");
-    return wrapMedia( id, "video" );
+    return wrapMedia( id, "video", self );
   };
 
 
