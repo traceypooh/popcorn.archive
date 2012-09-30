@@ -21,11 +21,10 @@
     var EMPTY_STRING = "";
 
     window.iaplayer[id] = {
-      iaid:'camels',//xxx
+      iaid:'camels', // default item if you brick your constructor ;-)
       id:id,
       playerReady:false,
       flash:false,
-      autoPlay:false,
       impl:{
         src: EMPTY_STRING,
         networkState: callerSelf.NETWORK_EMPTY,
@@ -53,7 +52,7 @@
         // When we have the JSON in hand, call "init()".
         var me=window.iaplayer[id];
         Popcorn.getJSONP("http://archive.org/metadata/"+me.iaid+"?&callback=jsonp", 
-                        me.init );
+                         me.init );
       },
 
       
@@ -157,7 +156,7 @@
         this.flash.addControllerListener("MUTE",  "window.iaplayer."+this.id+".muted");
         this.flash.addModelListener     ("ERROR", "window.iaplayer."+this.id+".errored");
         
-        if (this.autoPlay)
+        if (this.impl.autoPlay)
           this.flash.sendEvent('PLAY');
       }
     };
