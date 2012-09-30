@@ -25,6 +25,7 @@
       id:id,
       playerReady:false,
       flash:false,
+      media:document.createElement('video'),
       impl:{
         src: EMPTY_STRING,
         networkState: callerSelf.NETWORK_EMPTY,
@@ -89,6 +90,7 @@
           "controlbar.position":(audio ? "top" : "over"),
           "playerready":"window.iaplayer."+id+".flashReady",
           "id":id,
+          "autoStart":(me.impl.autoplay ? true : false),
           "file":"%2Fdownload%2F"+me.iaid + encodeURIComponent('/'+bestfi.name)
         };
         if (audio) {
@@ -102,7 +104,6 @@
           if (debug)
             flashvars["controlbar.position"]="bottom";
         }
-
         attributes = {
           "name":me.iaid
         };
@@ -111,6 +112,7 @@
         var options=[];
     
         Popcorn.extend( flashvars, options ); // like I have any idea what this does... 8-p
+        log(flashvars);
 
         params = {allowscriptaccess: "always",
                   allowfullscreen: "true",
@@ -126,11 +128,15 @@
 
       
       stateChanged:function( obj ){
+        // NOTE: also "this.flash.getConfig().state"
         log('statechanged: '+obj.oldstate+' ==> '+obj.newstate);//xxx
         if (obj.newstate != 'PLAYING')
           this.impl.paused = true;
       },
       timed:function( obj ){
+        //debugger;
+//alert(this.flash.getConfig().position);//xxx find corresponding currentTime in *flash* object -- and maybe then can fully merge "impl" and "media" obj??
+
         this.impl.currentTime = obj.position;
         if (obj.duration > 0  &&  obj.duration != this.impl.duration){
           this.impl.duration    = obj.duration;
@@ -161,9 +167,20 @@
         this.flash.addControllerListener("VOLUME","window.iaplayer."+this.id+".volumed");
         this.flash.addControllerListener("MUTE",  "window.iaplayer."+this.id+".muted");
         this.flash.addModelListener     ("ERROR", "window.iaplayer."+this.id+".errored");
-        
-        if (this.impl.autoPlay)
-          this.flash.sendEvent('PLAY');
+
+
+        // xxx NOTE: think rest of this is ignored/noop for now...
+        this.impl.networkState = self.NETWORK_IDLE;
+        this.impl.readyState = self.HAVE_METADATA;
+        this.media.dispatchEvent( "loadedmetadata" );
+
+        this.media.dispatchEvent( "loadeddata" );
+
+        this.impl.readyState = self.HAVE_FUTURE_DATA;
+        this.media.dispatchEvent( "canplay" );
+
+        this.impl.readyState = self.HAVE_ENOUGH_DATA;
+        this.media.dispatchEvent( "canplaythrough" );
       }
     };
       
@@ -176,20 +193,18 @@
 
     // Add the helper function _canPlaySrc so this works like other wrappers.
     
-    var media = document.createElement('video');
-    window.iaplayer[id].media=media; // stash a pointer for debugging/aid
-    
-
     
     var player=window.iaplayer[id];
 
-    media.play = function(){
+    player.media.play = function(){
       log('mplay');
-      player.flash.sendEvent('PLAY');
+      if (player.flash)
+        player.flash.sendEvent('PLAY');
     };
-    media.pause = function(){
+    player.media.pause = function(){
       log('mpause');
-      player.flash.sendEvent('PLAY', false);
+      if (player.flash)
+        player.flash.sendEvent('PLAY', false);
     };
 
 
@@ -200,7 +215,7 @@
       return (player.flash.getConfig().mute ? true : false);
     };
 
-    Object.defineProperties( media, {
+    Object.defineProperties( player.media, {
       src: {
         get: function() {
           return player.impl.src;
@@ -243,7 +258,7 @@
 
           if ( volNow !== val ) {
             player.flash.sendEvent("VOLUME", val * 100 );
-            //media.dispatchEvent( "volumechange" );//xxx
+            //player.media.dispatchEvent( "volumechange" );//xxx
           }
 
           return volNow;
@@ -266,8 +281,8 @@
           player.impl.currentTime = Math.max(0,val);
           seeking = true;
 
-          //media.dispatchEvent( "seeked" );//xxx
-          //media.dispatchEvent( "timeupdate" );//xxx
+          //player.media.dispatchEvent( "seeked" );//xxx
+          //player.media.dispatchEvent( "timeupdate" );//xxx
               
           player.flash.sendEvent("SEEK", player.impl.currentTime ); // (float #seconds)
           
@@ -281,7 +296,7 @@
       
 
     
-    return media;
+    return player.media;
   }
 
 
