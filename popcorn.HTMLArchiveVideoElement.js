@@ -3,7 +3,7 @@
  * that are created within a DIV, and forward their properties and methods
  * to a wrapped object.
  */
-(function( Popcorn, document ) {
+(function( Popcorn, window, document ) {
 
   var debug=true;
   var MIN_WIDTH = 320;
@@ -85,7 +85,7 @@
       }
         
       // Get the item metadata from archive.org for the given item/identifier.
-      // This allows us to find the best video(/audio) file to play!
+      // This allows us to find the best video/audio file to play!
       // When we have the JSON in hand, call "init()".
       var metaurl="http://archive.org/metadata/"+self.iaid+"?&callback=jsonp";
       log('metaurl: '+metaurl);
@@ -360,7 +360,7 @@
         }
       }
     });
-  }
+  };
 
 
 
@@ -369,13 +369,15 @@
 
 
   HTMLArchiveVideoElement.prototype = new Popcorn._MediaElementProto();
-  HTMLArchiveVideoElement.prototype.constructor = HTMLArchiveVideoElement;
+  //HTMLArchiveVideoElement.prototype.constructor = HTMLArchiveVideoElement;
 
-   
+  HTMLArchiveVideoElement.prototype._canPlaySrc = function( url  ) { return "maybe"; };
+  HTMLArchiveVideoElement.prototype.canPlayType = function( type ) { return "probably"; };
+
   Popcorn.HTMLArchiveVideoElement = function( id ) {
     return new HTMLArchiveVideoElement( id );
   };
+  Popcorn.HTMLArchiveVideoElement._canPlaySrc = HTMLArchiveVideoElement.prototype._canPlaySrc;
 
 
-
-}( Popcorn, window.document ));
+}( Popcorn, window, document ));
