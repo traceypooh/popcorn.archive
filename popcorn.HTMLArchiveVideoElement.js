@@ -9,7 +9,7 @@
   var MIN_WIDTH = 320;
   var MIN_HEIGHT = 240;
 
-  window.iaplayer={};
+  Popcorn.ia={};
     
   var log = function(obj){
     if (debug  &&  typeof console !='undefined')
@@ -20,7 +20,7 @@
   function wrapMedia( id, callerSelf, parent ) {
     var EMPTY_STRING = "";
 
-    window.iaplayer[id] = {
+    Popcorn.ia[id] = {
       iaid:'camels', // default item if you brick your constructor ;-)
       id:id,
       playerReady:false,
@@ -51,7 +51,7 @@
         // Get the item metadata from archive.org for the given item/identifier.
         // This allows us to find the best video(/audio) file to play!
         // When we have the JSON in hand, call "init()".
-        var me=window.iaplayer[id];
+        var me=Popcorn.ia[id];
         Popcorn.getJSONP("http://archive.org/metadata/"+me.iaid+"?&callback=jsonp", 
                          me.init );
       },
@@ -84,11 +84,11 @@
         log('bestfi: '+bestfi.name);
 
     
-        var me=window.iaplayer[id];
+        var me=Popcorn.ia[id];
         var flashvars = {
           "netstreambasepath":"http%3A%2F%2Farchive.org%2F",
           "controlbar.position":(audio ? "top" : "over"),
-          "playerready":"window.iaplayer."+id+".flashReady",
+          "playerready":"Popcorn.ia."+id+".flashReady",
           "id":id,
           "autoStart":(me.impl.autoplay ? true : false),
           "file":"%2Fdownload%2F"+me.iaid + encodeURIComponent('/'+bestfi.name)
@@ -160,13 +160,13 @@
         this.playerReady = true;
         this.flash = $('#'+this.id).get(0);//xxx jQuery!
 
-        this.flash.addModelListener     ("STATE", "window.iaplayer."+this.id+".stateChanged");
-        this.flash.addModelListener     ("TIME" , "window.iaplayer."+this.id+".timed");
-        this.flash.addModelListener     ("BUFFER","window.iaplayer."+this.id+".buffered");
-        this.flash.addModelListener     ("LOADED","window.iaplayer."+this.id+".loaded");
-        this.flash.addControllerListener("VOLUME","window.iaplayer."+this.id+".volumed");
-        this.flash.addControllerListener("MUTE",  "window.iaplayer."+this.id+".muted");
-        this.flash.addModelListener     ("ERROR", "window.iaplayer."+this.id+".errored");
+        this.flash.addModelListener     ("STATE", "Popcorn.ia."+this.id+".stateChanged");
+        this.flash.addModelListener     ("TIME" , "Popcorn.ia."+this.id+".timed");
+        this.flash.addModelListener     ("BUFFER","Popcorn.ia."+this.id+".buffered");
+        this.flash.addModelListener     ("LOADED","Popcorn.ia."+this.id+".loaded");
+        this.flash.addControllerListener("VOLUME","Popcorn.ia."+this.id+".volumed");
+        this.flash.addControllerListener("MUTE",  "Popcorn.ia."+this.id+".muted");
+        this.flash.addModelListener     ("ERROR", "Popcorn.ia."+this.id+".errored");
 
 
         // xxx NOTE: think rest of this is ignored/noop for now...
@@ -186,15 +186,15 @@
       
     
     if ( !window.swfobject )
-      Popcorn.getScript("http://archive.org/jw/popcorn/swfobject.js", window.iaplayer[id].setup);
+      Popcorn.getScript("http://archive.org/jw/popcorn/swfobject.js", Popcorn.ia[id].setup);
     else
-      window.iaplayer[id].setup();
+      Popcorn.ia[id].setup();
   
 
     // Add the helper function _canPlaySrc so this works like other wrappers.
     
     
-    var player=window.iaplayer[id];
+    var player=Popcorn.ia[id];
 
     player.media.play = function(){
       log('mplay');
