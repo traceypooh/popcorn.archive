@@ -125,23 +125,29 @@
       },
 
       
-      stateChanged:function( val ){
-        log('statechanged: '+val.oldstate+' ==> '+val.newstate);//xxx
+      stateChanged:function( obj ){
+        log('statechanged: '+obj.oldstate+' ==> '+obj.newstate);//xxx
+        if (obj.newstate != 'PLAYING')
+          this.impl.paused = true;
       },
-      timed:function( val ){
-        this.impl.currentTime = val.position;
+      timed:function( obj ){
+        this.impl.currentTime = obj.position;
+        if (obj.duration > 0  &&  obj.duration != this.impl.duration){
+          this.impl.duration    = obj.duration;
+          this.media.duration   = obj.duration;
+        }
       },
-      buffered:function( val ){ //xxx
+      buffered:function( obj ){ //xxx
       },
-      loaded:function( val ){ //xxx
+      loaded:function( obj ){ //xxx
       },
-      volumed:function( val ){
-        this.impl.volume = val.percentage / 100;
+      volumed:function( obj ){
+        this.impl.volume = obj.percentage / 100;
       },
-      muted:function( val ){
-        this.impl.muted = (val.state ? 1 : 0);
+      muted:function( obj ){
+        this.impl.muted = (obj.state ? 1 : 0);
       },
-      errored:function( val ){ //xxx
+      errored:function( obj ){ //xxx
       },
       flashReady:function() {
         log('flashReady!');
