@@ -29,9 +29,10 @@
 
   function HTMLArchiveVideoElement( id ) {
     log('new HTMLArchiveVideoElement("#'+id+'")');
-    var parent = typeof id === "string" ? document.getElementById( id ) : id;//xxx
-   
+
     var self = this;
+    var parent = typeof id === "string" ? Popcorn.dom.find( id ) : id;
+   
     Popcorn.ia[id] = self; // stash a pointer for flash events to find us
     
 
@@ -226,7 +227,6 @@
 
     // Load "swfobject.embedSWF()" utility function if not already defined previously
     // Once it's loaded, we can call "setup()"
-    log('hi xxx');
     if ( !window.swfobject )
       Popcorn.getScript("http://archive.org/jw/popcorn/swfobject.js", self.setup);
     else
