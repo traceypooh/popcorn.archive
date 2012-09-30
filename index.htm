@@ -12,13 +12,13 @@
     <script src="popcorn-js/popcorn.js"></script>
     <script src="popcorn-js/modules/player/popcorn.player.js"></script>
     <script src="popcorn-js/wrappers/common/popcorn._MediaElementProto.js"></script>
-    <script src="popcorn-js/wrappers/youtube/popcorn.HTMLYoutubeVideoElement.js"></script>
     <script src="popcorn-js/wrappers/archive/popcorn.HTMLArchiveVideoElement.js"></script>
+    <script src="popcorn-js/players/archive/popcorn.archive.js"></script>
     <script src="popcorn-js/plugins/footnote/popcorn.footnote.js"></script>
     <script src="popcorn-js/plugins/image/popcorn.image.js"></script>
     <script src="popcorn-js/plugins/flickr/popcorn.flickr.js"></script>
 
-    <script src="popcorn-js/players/archive/popcorn.archive.js"></script>
+    <script src="popcorn-js/wrappers/youtube/popcorn.HTMLYoutubeVideoElement.js"></script>
     <script src="popcorn-js/players/youtube/popcorn.youtube.js"></script>
 
 
@@ -59,6 +59,7 @@ a:link, a:visited, a:active { color: #00aef0 !important; }
      if (location.search.substr(1)!="")
        iaid=location.search.substr(1);
      var pop = Popcorn.archive( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
+     //var pop = Popcorn.smart( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
      //var pop = Popcorn.youtube( "v", "http://www.youtube.com/watch?v=8UVNT4wvIGY");
 
 

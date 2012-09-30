@@ -71,7 +71,11 @@
         height: parent.height|0 ? parent.height : MIN_HEIGHT,
         error: null
       };
-      
+
+
+    self.onPlay = function(){
+        log('ftw');
+    }
     
     self.setup = function(){ //xxx move this into changeSrc() instead and nix the stalling timer??
       // If "self.src" has been (externally) set, then "self.iaid" has also been set.
@@ -371,8 +375,8 @@
   HTMLArchiveVideoElement.prototype = new Popcorn._MediaElementProto();
   //HTMLArchiveVideoElement.prototype.constructor = HTMLArchiveVideoElement;
 
-  HTMLArchiveVideoElement.prototype._canPlaySrc = function( url  ) { return "maybe"; };
-  HTMLArchiveVideoElement.prototype.canPlayType = function( type ) { return "probably"; };
+  HTMLArchiveVideoElement.prototype._canPlaySrc = function( url  ){ log('f1 '+url);return "probably"; };
+  HTMLArchiveVideoElement.prototype.canPlayType = function( type ){ log('f2');return "probably"; };
 
   Popcorn.HTMLArchiveVideoElement = function( id ) {
     return new HTMLArchiveVideoElement( id );
