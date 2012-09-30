@@ -4,17 +4,23 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <!--
     <script src="http://cdn.popcornjs.org/code/dist/popcorn-complete.js"></script>
-    <script type="text/javascript" src="http://archive.org/includes/jquery-1.6.1.js"></script>
 -->
+
+    <script src="popcorn-js/dist/popcorn-complete.js"></script>
+    <script src="popcorn-js/wrappers/common/popcorn._MediaElementProto.js"></script>
+<!--
+    <script type="text/javascript" src="http://archive.org/includes/jquery-1.6.1.js"></script>
     <script src="popcorn-js/popcorn.js"></script>
     <script src="popcorn-js/modules/player/popcorn.player.js"></script>
     <script src="popcorn-js/wrappers/common/popcorn._MediaElementProto.js"></script>
     <script src="popcorn-js/wrappers/archive/popcorn.HTMLArchiveVideoElement.js"></script>
     <script src="popcorn-js/players/archive/popcorn.archive.js"></script>
+-->
+<!--
     <script src="popcorn-js/plugins/footnote/popcorn.footnote.js"></script>
     <script src="popcorn-js/plugins/image/popcorn.image.js"></script>
     <script src="popcorn-js/plugins/flickr/popcorn.flickr.js"></script>
-
+-->
 
 
     <style>
@@ -53,9 +59,11 @@ a:link, a:visited, a:active { color: #00aef0 !important; }
      var iaid = 'commute';
      if (location.search.substr(1)!="")
        iaid=location.search.substr(1);
-     var pop = Popcorn.archive( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
+     //var pop = Popcorn.archive( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
+     var pop = Popcorn.youtube( "v", "http://www.youtube.com/watch?v=8UVNT4wvIGY");
 
-//var p2 = Popcorn.archive( "v2", "http://archive.org/download/stairs/stairs.mp4" );
+
+     //var p2 = Popcorn.archive( "v2", "http://archive.org/download/stairs/stairs.mp4" );
       
       pop.footnote({
         start: 1,
