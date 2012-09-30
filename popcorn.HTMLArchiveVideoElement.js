@@ -75,6 +75,7 @@
         // When we have the JSON in hand, call "init()".
         var metaurl="http://archive.org/metadata/"+me.iaid+"?&callback=jsonp";
         log('metaurl: '+metaurl);
+
         Popcorn.getJSONP( metaurl, me.init );
       },
 
@@ -180,7 +181,7 @@
       flashReady:function() {
         log('flashReady!');
         this.playerReady = true;
-        this.flash = $('#'+this.id).get(0);//xxx jQuery!
+        this.flash = Popcorn.dom.find(id);
 
         this.flash.addModelListener     ("STATE", "Popcorn.ia."+this.id+".stateChanged");
         this.flash.addModelListener     ("TIME" , "Popcorn.ia."+this.id+".timed");
