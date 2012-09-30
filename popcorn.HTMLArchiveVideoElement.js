@@ -12,26 +12,36 @@
   Popcorn.ia={};
     
   var log = function(obj){
-    if (debug  &&  typeof console !='undefined')
+    if (!debug)
+      return false;
+    
+    if (typeof console !='undefined')
       console.log(obj);
+
+    // for debugging, always return the 1st IA player!
+    for (var ret in Popcorn.ia)
+      return Popcorn.ia[ret];
   };
+ if (debug)
+   window.log = log;
 
 
-  function wrapMedia( id, callerSelf, parent ) {
+  function wrapMedia( id, self, parent ) {
     var EMPTY_STRING = "";
 
     Popcorn.ia[id] = {
-      iaid:'camels', // default item if you brick your constructor ;-)
+      iaid:null,  // Internet Archive IDentifier -- eg: "commute" ( see http://archive.org/details/commute )
       id:id,
       playerReady:false,
       flash:false,
       media:document.createElement('video'),
+      stallTimer:false,
       impl:{
         src: EMPTY_STRING,
-        networkState: callerSelf.NETWORK_EMPTY,
-        readyState: callerSelf.HAVE_NOTHING,
+        networkState: self.NETWORK_EMPTY,
+        readyState: self.HAVE_NOTHING,
         seeking: false,
-        autoplay: EMPTY_STRING,
+        autoplay: true,//EMPTY_STRING,
         preload: EMPTY_STRING,
         controls: false,
         loop: false,
@@ -47,13 +57,25 @@
         error: null
       },
       
-      setup:function(){
+      setup:function(){ //xxx move this into changeSrc() instead and nix the stalling timer??
+        var me=Popcorn.ia[id];
+        
+        // See if "media.src" has been (externally) set, so we know which 
+        // "iaid" (Internet Archive IDentifier) to get.
+        // If not, stall 100 ms and re-check...
+        if (me.iaid===null){
+          log('.');
+          if (me.stallTimer) clearTimeout(me.stallTimer);
+          me.stallTimer = setTimeout(me.setup, 100);
+          return;
+        }
+        
         // Get the item metadata from archive.org for the given item/identifier.
         // This allows us to find the best video(/audio) file to play!
         // When we have the JSON in hand, call "init()".
-        var me=Popcorn.ia[id];
-        Popcorn.getJSONP("http://archive.org/metadata/"+me.iaid+"?&callback=jsonp", 
-                         me.init );
+        var metaurl="http://archive.org/metadata/"+me.iaid+"?&callback=jsonp";
+        log('metaurl: '+metaurl);
+        Popcorn.getJSONP( metaurl, me.init );
       },
 
       
@@ -112,7 +134,7 @@
         var options=[];
     
         Popcorn.extend( flashvars, options ); // like I have any idea what this does... 8-p
-        log(flashvars);
+        //log(flashvars);
 
         params = {allowscriptaccess: "always",
                   allowfullscreen: "true",
@@ -169,37 +191,59 @@
         this.flash.addModelListener     ("ERROR", "Popcorn.ia."+this.id+".errored");
 
 
+        this.impl.networkState  = self.NETWORK_LOADING;
+        this.media.networkState = self.NETWORK_LOADING;//xxx?
+        self.dispatchEvent( "loadstart" );
+        self.dispatchEvent( "progress" );
+        
+        
         // xxx NOTE: think rest of this is ignored/noop for now...
-        this.impl.networkState = self.NETWORK_IDLE;
-        this.impl.readyState = self.HAVE_METADATA;
-        this.media.dispatchEvent( "loadedmetadata" );
+        this.impl.networkState  = self.NETWORK_IDLE;
+        this.media.networkState = self.NETWORK_IDLE;//xxx?
+        this.impl.readyState  =   self.HAVE_METADATA;
+        this.media.readyState =   self.HAVE_METADATA;//xxx?
+        self.dispatchEvent( "loadedmetadata" );
 
-        this.media.dispatchEvent( "loadeddata" );
+        self.dispatchEvent( "loadeddata" );
 
-        this.impl.readyState = self.HAVE_FUTURE_DATA;
-        this.media.dispatchEvent( "canplay" );
+        this.impl.readyState =  self.HAVE_FUTURE_DATA;
+        this.media.readyState = self.HAVE_FUTURE_DATA;//xxx?
+        self.dispatchEvent( "canplay" );
 
-        this.impl.readyState = self.HAVE_ENOUGH_DATA;
-        this.media.dispatchEvent( "canplaythrough" );
+        this.impl.readyState =  self.HAVE_ENOUGH_DATA;
+        this.media.readyState = self.HAVE_ENOUGH_DATA;//xxx?
+        self.dispatchEvent( "canplaythrough" );
+        
+        //xxx? if (this.impl.autoplay) self.play();
       }
     };
       
-    
+
+    // Load "swfobject.embedSWF()" utility function if not already defined previously
+    // Once it's loaded, we can call "setup()"
     if ( !window.swfobject )
       Popcorn.getScript("http://archive.org/jw/popcorn/swfobject.js", Popcorn.ia[id].setup);
     else
       Popcorn.ia[id].setup();
   
 
-    // Add the helper function _canPlaySrc so this works like other wrappers.
-    
-    
     var player=Popcorn.ia[id];
 
+    // Add the helper function _canPlaySrc so this works like other wrappers.
+    player.media.canPlaySrc = function( src ){
+      log('m.canPlaySrc? '+ src);
+      return "maybe";
+    };
+    player.media._canPlaySrc = function( src ){
+      log('m._canPlaySrc? '+ src);
+      return "maybe";
+    };
     player.media.play = function(){
       log('mplay');
       if (player.flash)
         player.flash.sendEvent('PLAY');
+      self.dispatchEvent( "play" );
+      self.dispatchEvent( "playing" );
     };
     player.media.pause = function(){
       log('mpause');
@@ -230,6 +274,10 @@
             }
             player.iaid = tmp[1];
             log('changeSrc: '+aSrc+', iaid: '+player.iaid);
+            
+            self.dispatchEvent( "loadstart" );
+            self.dispatchEvent( "progress" );
+            self.dispatchEvent( "durationchange" );
           }
         }
       },
@@ -258,7 +306,7 @@
 
           if ( volNow !== val ) {
             player.flash.sendEvent("VOLUME", val * 100 );
-            //player.media.dispatchEvent( "volumechange" );//xxx
+            self.dispatchEvent( "volumechange" );//xxx
           }
 
           return volNow;
@@ -281,8 +329,8 @@
           player.impl.currentTime = Math.max(0,val);
           seeking = true;
 
-          //player.media.dispatchEvent( "seeked" );//xxx
-          //player.media.dispatchEvent( "timeupdate" );//xxx
+          self.dispatchEvent( "seeked" );//xxx
+          self.dispatchEvent( "timeupdate" );//xxx
               
           player.flash.sendEvent("SEEK", player.impl.currentTime ); // (float #seconds)
           
@@ -305,7 +353,7 @@
 
 
   function HTMLArchiveVideoElement( id ) {
-    log(id);
+    log('new HTMLArchiveVideoElement("#'+id+'")');
     var parent = typeof id === "string" ? document.getElementById( id ) : id;//xxx
    
     var self = this;
@@ -313,14 +361,17 @@
     // Namespace all events we'll produce
     self._eventNamespace = Popcorn.guid( "HTMLArchiveVideoElement::" );
 
-    self.parentNode = parent;
-
     // Mark type as Archive
     self._util.type = "Archive";
 
+    var media = wrapMedia( id, self, parent );
 
-    log("new HTMLArchiveVideoElement()");
-    return wrapMedia( id, self, parent );
+    // xxxx flail/drowning.  help me chris decairos kenobi, you're my only hope...
+    self.parentNode = Popcorn.ia[id].impl;
+    self.parentNode = media;
+    self.parentNode = parent;
+
+    return media;
   };
 
 
