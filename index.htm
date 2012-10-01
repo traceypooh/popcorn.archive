@@ -60,9 +60,9 @@ a:link, a:visited, a:active { color: #00aef0 !important; }
      if (location.search.substr(1)!="")
        iaid=location.search.substr(1);
      var pop = Popcorn.archive( "v", "http://archive.org/details/"+iaid );
-     //var pop = Popcorn.smart( "v", "http://archive.org/download/"+iaid );
+     //var pop = Popcorn.smart( "v", "http://archive.org/details/"+iaid );
      //var pop = Popcorn.youtube( "v", "http://www.youtube.com/watch?v=8UVNT4wvIGY");
-     //var p2 = Popcorn.archive( "v2", "http://archive.org/download/stairs/stairs.mp4" );
+     //var p2 = Popcorn.archive( "v2", "http://archive.org/details/stairs" );
       
       pop.footnote({
         start: 1,
