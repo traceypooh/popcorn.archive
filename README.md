@@ -3,10 +3,11 @@ popcorn.archive
 
 Popcorn.js  plugin player to allow for use of Internet Archive video and audio items
 
+These should go into a new subdir in the main popcorn-js tree:
 
+popcorn-js/wrappers/archive/
+
+
+* popcorn.HTMLArchiveVideoElement.js      -- the javascript to setup the wrapper
 * index.htm                               -- test page using "new Popcorn.archive()"
-* popcorn.HTMLArchiveVideoElement.js      -- this goes in a new "popcorn-js/wrappers/archive/" subdir
-* popcorn.archive.js                      -- this goes in a new "popcorn-js/players/archive/"  subdir
-* popcorn.archive.html                    -- this goes in a new "popcorn-js/players/archive/"  subdir -- for unit testing
-
-* obsoleted.js                            -- prior "players" subdir based code
+* popcorn.archive.html                    -- for detailed testing of external buttons to flash player, especially
