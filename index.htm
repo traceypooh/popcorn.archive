@@ -16,6 +16,7 @@
     <script src="popcorn-js/players/archive/popcorn.archive.js"></script>
     <script src="popcorn-js/plugins/footnote/popcorn.footnote.js"></script>
     <script src="popcorn-js/plugins/image/popcorn.image.js"></script>
+    <script src="popcorn-js/plugins/googlemap/popcorn.googlemap.js"></script>
     <script src="popcorn-js/plugins/flickr/popcorn.flickr.js"></script>
 
     <script src="popcorn-js/wrappers/youtube/popcorn.HTMLYoutubeVideoElement.js"></script>
@@ -61,8 +62,6 @@ a:link, a:visited, a:active { color: #00aef0 !important; }
      var pop = Popcorn.archive( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
      //var pop = Popcorn.smart( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
      //var pop = Popcorn.youtube( "v", "http://www.youtube.com/watch?v=8UVNT4wvIGY");
-
-
      //var p2 = Popcorn.archive( "v2", "http://archive.org/download/stairs/stairs.mp4" );
       
       pop.footnote({
@@ -72,34 +71,33 @@ a:link, a:visited, a:active { color: #00aef0 !important; }
         target: "foot"
       });
 
-      /* need dev key, poop
       pop.googlemap({
-        start: 2,
-        end: 30,
+        start: 12,
+        end: 25,
         type: "STREETVIEW",
-        tarrget: "extra",
+        target: "extra",
         location: "Highway 24, Lafayette, CA",
         zoom: 1
       });
-      */
-/*
+
+
       pop.image({
         start: 5, // seconds
-        end: 15, // seconds
+        end: 10, // seconds
         href: "http://www.drumbeat.org/",
         src: "https://www.drumbeat.org/media//images/drumbeat-logo-splash.png",
         target: "extra"
         });
-*/
-/*
+
+
       pop.flickr({
-        start: 20, // seconds
+        start: 27, // seconds
         end: 40, // seconds
         tags: "pumpkins",
         numberofimages: "20",
         target: "extra"
       });
-*/
+
       pop.footnote({
         start: 5.1,
         end: 15,

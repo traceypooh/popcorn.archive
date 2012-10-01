@@ -214,6 +214,7 @@
       if (obj.duration > 0  &&  obj.duration != self.impl.duration){
         self.impl.duration    = obj.duration;
       }
+      self.dispatchEvent( "timeupdate" ); // NOTE: SINGLE MOST IMPORTANT LINE -- TO MAKE TIMELINE EVENTS WORK!!
     };
     
     self.volumed = function( obj ){
@@ -336,6 +337,8 @@
 
           self.impl.currentTime = Math.max(0,val);
           seeking = true;
+
+          log('seek to '+val);
 
           self.dispatchEvent( "seeked" );//xxx
           self.dispatchEvent( "timeupdate" );//xxx
