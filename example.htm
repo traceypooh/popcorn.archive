@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<!--
+    <script type="text/javascript" src="http://archive.org/includes/jquery-1.6.1.js"></script>
+    <script src="http://cdn.popcornjs.org/code/dist/popcorn-complete.js"></script>
+-->
+
+<!-- PICK ONE OF THESE TWO BLOCKS -->
+<!-- 
+    <script src="popcorn-js/dist/popcorn-complete.js"></script>
+-->
+
+<!-- -->
+    <script src="popcorn-js/popcorn.js"></script>
+    <script src="popcorn-js/modules/player/popcorn.player.js"></script>
+
+    <script src="popcorn-js/players/youtube/popcorn.youtube.js"></script>
+
+    <script src="popcorn-js/wrappers/common/popcorn._MediaElementProto.js"></script>
+    <script src="popcorn-js/wrappers/archive/popcorn.HTMLArchiveVideoElement.js"></script>
+    <script src="popcorn-js/wrappers/youtube/popcorn.HTMLYouTubeVideoElement.js"></script>
+
+    <script src="popcorn-js/plugins/footnote/popcorn.footnote.js"></script>
+    <script src="popcorn-js/plugins/image/popcorn.image.js"></script>
+    <script src="popcorn-js/plugins/googlemap/popcorn.googlemap.js"></script>
+    <script src="popcorn-js/plugins/flickr/popcorn.flickr.js"></script>
+<!-- -->
+
+
+    <style>
+body { background-color:#073642 !important; color: #ddd; }
+a       { text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:link, a:visited, a:active { color: #00aef0 !important; }
+    </style>
+
+  </head>
+  <body>
+
+    <h3>Mozilla Popcorn.js + Internet Archive videos (using IA&apos;s jwplayer and flash)</h3>
+    <a href="https://github.com/traceypooh/popcorn.archive">player JS source</a><br/>
+    You can try with another "?[identifier]" to play another:<br/>
+    <a target="_new" href="http://archive.org/details/movies">Archive video</a> example <a href="?redrake">item</a><br/>
+    <a target="_new" href="http://archive.org/details/audio">Archive audio</a> example <a href="?ellepurr">item</a></br/>
+    <br/>
+    [ 
+    <a target="_new" href="http://popcornjs.org/">Popcorn.js</a> 
+    | 
+    <a target="_new" href="http://mozillapopcorn.org/">mozilla Popcorn.js</a> 
+    |
+    <a target="_new" href="http://popcornjs.org/popcorn-docs/">API doc</a>
+    ]
+    <br/>
+    <br/>
+
+    <div id="extra" style="position:absolute; right:10px; width:300px; height:800px;"></div>
+    <div id="v"  style="width:640px;height:480px;"></div>
+    <div id="v2" style="width:320px;height:240px; position:absolute; right:10px; bottom:10px;"></div>
+    <div id="foot"></div>
+    
+    <script>
+     // create our popcorn instance
+     var iaid = 'morebooks';
+     if (location.search.substr(1)!="")
+       iaid=location.search.substr(1);
+     var pop = Popcorn.archive( "v", "http://archive.org/details/"+iaid );
+     //var pop = Popcorn.smart( "v", "http://archive.org/details/"+iaid );
+     //var pop = Popcorn.youtube( "v", "http://www.youtube.com/watch?v=8UVNT4wvIGY");
+     //var p2 = Popcorn.archive( "v2", "http://archive.org/details/stairs" );
+      
+      pop.footnote({
+        start: 1,
+        end: 5,
+        text: "archive working!",
+        target: "foot"
+      });
+
+      pop.googlemap({
+        start: 12,
+        end: 25,
+        type: "STREETVIEW",
+        target: "extra",
+        location: "Highway 24, Lafayette, CA",
+        zoom: 1
+      });
+
+
+      pop.image({
+        start: 5, // seconds
+        end: 10, // seconds
+        href: "http://www.drumbeat.org/",
+        src: "https://www.drumbeat.org/media//images/drumbeat-logo-splash.png",
+        target: "extra"
+        });
+
+
+      pop.flickr({
+        start: 27, // seconds
+        end: 40, // seconds
+        tags: "pumpkins",
+        numberofimages: "20",
+        target: "extra"
+      });
+
+      pop.footnote({
+        start: 5.1,
+        end: 15,
+        text: "archive really working!",
+        target: "foot"
+      });
+
+      // play video
+      pop.play();
+    </script>
+</body>
+</html>
