@@ -389,5 +389,26 @@
   };
   Popcorn.HTMLArchiveVideoElement._canPlaySrc = HTMLArchiveVideoElement.prototype._canPlaySrc;
 
+   
+   
+   
+  Popcorn.player( "archive", 
+    {
+      _canPlayType: function( nodeName, url ) {
+        return ( typeof url === "string" &&
+                 Popcorn.HTMLArchiveVideoElement._canPlaySrc( url ) );
+      }
+    });
+     
+  Popcorn.archive = function( container, url, options ) {
+    var media = Popcorn.HTMLArchiveVideoElement( container ),
+    popcorn = Popcorn( media, options );
+       
+    // Set the src "soon" but return popcorn instance first, so
+    // the caller can get get error events.
+    setTimeout( function() { media.src = url; }, 0 );
+    return popcorn;
+  };
+    
 
 }( Popcorn, window, document ));
