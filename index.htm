@@ -50,17 +50,17 @@ a:link, a:visited, a:active { color: #00aef0 !important; }
     <br/>
 
     <div id="extra" style="position:absolute; right:10px; width:300px; height:800px;"></div>
-    <div id="v"  style="width:400px;height:300px;"></div>
+    <div id="v"  style="width:640px;height:480px;"></div>
     <div id="v2" style="width:320px;height:240px; position:absolute; right:10px; bottom:10px;"></div>
     <div id="foot"></div>
     
     <script>
      // create our popcorn instance
-     var iaid = 'commute';
+     var iaid = 'morebooks';
      if (location.search.substr(1)!="")
        iaid=location.search.substr(1);
-     var pop = Popcorn.archive( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
-     //var pop = Popcorn.smart( "v", "http://archive.org/download/"+iaid+'/'+iaid+'.mp4' );
+     var pop = Popcorn.archive( "v", "http://archive.org/details/"+iaid );
+     //var pop = Popcorn.smart( "v", "http://archive.org/download/"+iaid );
      //var pop = Popcorn.youtube( "v", "http://www.youtube.com/watch?v=8UVNT4wvIGY");
      //var p2 = Popcorn.archive( "v2", "http://archive.org/download/stairs/stairs.mp4" );
       

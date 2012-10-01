@@ -44,13 +44,12 @@
 
     self.parentNode = parent;
 
-    // Internet Archive IDentifier -- eg: "commute" ( see http://archive.org/details/commute )
+    // Internet Archive IDentifier -- eg: "morebooks" ( see http://archive.org/details/morebooks )
     self.iaid=null;  
 
     var EMPTY_STRING="";
     self.playerReady=false;
     self.flash=false;
-    self.stallTimer=false;
     self.impl={
         src: EMPTY_STRING,
         networkState: self.NETWORK_EMPTY,
@@ -67,27 +66,17 @@
         duration: NaN,
         ended: false,
         paused: true,
-        width: parent.width|0   ? parent.width  : MIN_WIDTH,
-        height: parent.height|0 ? parent.height : MIN_HEIGHT,
+        width:  (parent.style.width  ? parseInt(parent.style.width)  : (parent.width |0 ? parent.width  : MIN_WIDTH  )),
+        height: (parent.style.height ? parseInt(parent.style.height) : (parent.height|0 ? parent.height : MIN_HEIGHT )),
         error: null
       };
 
 
     self.onPlay = function(){
-        log('ftw');
-    }
+      log('self.onPlay()');
+    };
     
-    self.setup = function(){ //xxx move this into changeSrc() instead and nix the stalling timer??
-      // If "self.src" has been (externally) set, then "self.iaid" has also been set.
-      // Thus, we'll know which "iaid" (Internet Archive IDentifier) to get.
-      // If not, stall 100 ms and re-check...
-      if (self.iaid===null){
-        log('.');
-        if (self.stallTimer) clearTimeout(self.stallTimer);
-        self.stallTimer = setTimeout(self.setup, 500);//xxx 500
-        return;
-      }
-        
+    self.setup = function(){
       // Get the item metadata from archive.org for the given item/identifier.
       // This allows us to find the best video/audio file to play!
       // When we have the JSON in hand, call "init()".
@@ -99,9 +88,6 @@
 
       
     self.init = function( itemMetadata ){
-        var width =(debug ? MIN_WIDTH  : 2*MIN_WIDTH);
-        var height=(debug ? MIN_HEIGHT : 2*MIN_HEIGHT) + (debug ? 30 : 0);//xxxx
-        
         var bestfi=false;
         var audio=false;
         //log(itemMetadata.files);
@@ -162,8 +148,9 @@
                  };
 
         swfobject.embedSWF("http://archive.org/jw/player.swf", id,
-                           width, (audio ? 60 : height), "9.0.0", "expressInstall.swf",
-                           flashvars, params, attributes );
+                           self.impl.width, 
+                           (audio ? 60 : self.impl.height + (debug ? 30 : 0)), //height
+                           "9.0.0", "expressInstall.swf", flashvars, params, attributes );
     };
 
     self.flashReady = function() {
@@ -230,14 +217,6 @@
     self.errored = function( obj ){}; //xxx
 
 
-    // Load "swfobject.embedSWF()" utility function if not already defined previously
-    // Once it's loaded, we can call "setup()"
-    if ( !window.swfobject )
-      Popcorn.getScript("http://archive.org/jw/popcorn/swfobject.js", self.setup);
-    else
-      self.setup();
-  
-
     // Add the helper function _canPlaySrc so this works like other wrappers.
     self.canPlaySrc = function( src ){
       log('m.canPlaySrc? '+ src);
@@ -261,13 +240,13 @@
     };
 
 
-
-    var isMuted = function() {
+    self.isMuted = function() {
       if (!self.playerReady) 
         return false;
       return (self.flash.getConfig().mute ? true : false);
     };
 
+    
     Object.defineProperties( self, {
       src: {
         get: function() {
@@ -276,13 +255,22 @@
         set: function( aSrc ) {
           if( aSrc && aSrc !== self.impl.src ) {
             self.impl.src = aSrc;
-            var tmp=aSrc.match(/archive\.org\/download\/([^\/]+)/);
-            if (!tmp  ||  tmp.length != 2){
-              alert('does not appear to be a valid "http://archive.org" download (perma)link.  cannot proceed.');
+            var tmp=aSrc.match(/archive\.org\/(details|download|embed)\/([^\/]+)/);
+            if (!tmp  ||  tmp.length != 3){
+              alert('does not appear to be a valid "http://archive.org" details, download, or embed (perma)link.  cannot proceed.');
               return;
             }
-            self.iaid = tmp[1];
+            self.iaid = tmp[2];
             log('changeSrc: '+aSrc+', iaid: '+self.iaid);
+            
+            
+            // Load "swfobject.embedSWF()" utility function if not already defined previously
+            // Once it's loaded, we can call "setup()"
+            if ( !window.swfobject )
+              Popcorn.getScript("http://archive.org/jw/popcorn/swfobject.js", self.setup);
+            else
+              self.setup();
+
             
             self.dispatchEvent( "loadstart" );
             self.dispatchEvent( "progress" );
@@ -292,13 +280,13 @@
       },
       muted: {
         get: function() {
-          return isMuted();
+          return self.isMuted();
         },
         set: function( val ) {
           if (!self.playerReady)
             return;
           
-          if ( isMuted() !== val ) 
+          if ( self.isMuted() !== val ) 
             self.flash.sendEvent('MUTE');
         }
       },
