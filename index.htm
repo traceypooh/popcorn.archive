@@ -4,23 +4,31 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
 <!--
-    <script src="http://cdn.popcornjs.org/code/dist/popcorn-complete.js"></script>
-    <script src="popcorn-js/dist/popcorn-complete.js"></script>
     <script type="text/javascript" src="http://archive.org/includes/jquery-1.6.1.js"></script>
+    <script src="http://cdn.popcornjs.org/code/dist/popcorn-complete.js"></script>
 -->
 
+<!-- PICK ONE OF THESE TWO BLOCKS -->
+<!-- 
+    <script src="popcorn-js/dist/popcorn-complete.js"></script>
+-->
+
+<!-- -->
     <script src="popcorn-js/popcorn.js"></script>
     <script src="popcorn-js/modules/player/popcorn.player.js"></script>
+
+    <script src="popcorn-js/players/archive/popcorn.archive.js"></script>
+    <script src="popcorn-js/players/youtube/popcorn.youtube.js"></script>
+
     <script src="popcorn-js/wrappers/common/popcorn._MediaElementProto.js"></script>
     <script src="popcorn-js/wrappers/archive/popcorn.HTMLArchiveVideoElement.js"></script>
-    <script src="popcorn-js/players/archive/popcorn.archive.js"></script>
+    <script src="popcorn-js/wrappers/youtube/popcorn.HTMLYouTubeVideoElement.js"></script>
+
     <script src="popcorn-js/plugins/footnote/popcorn.footnote.js"></script>
     <script src="popcorn-js/plugins/image/popcorn.image.js"></script>
     <script src="popcorn-js/plugins/googlemap/popcorn.googlemap.js"></script>
     <script src="popcorn-js/plugins/flickr/popcorn.flickr.js"></script>
-
-    <script src="popcorn-js/wrappers/youtube/popcorn.HTMLYouTubeVideoElement.js"></script>
-    <script src="popcorn-js/players/youtube/popcorn.youtube.js"></script>
+<!-- -->
 
 
     <style>
@@ -34,7 +42,7 @@ a:link, a:visited, a:active { color: #00aef0 !important; }
   <body>
 
     <h3>Mozilla Popcorn.js + Internet Archive videos (using IA&apos;s jwplayer and flash)</h3>
-    <a href="popcorn.archive.js">player JS source</a><br/>
+    <a href="https://github.com/traceypooh/popcorn.archive">player JS source</a><br/>
     You can try with another "?[identifier]" to play another:<br/>
     <a target="_new" href="http://archive.org/details/movies">Archive video</a> example <a href="?redrake">item</a><br/>
     <a target="_new" href="http://archive.org/details/audio">Archive audio</a> example <a href="?ellepurr">item</a></br/>
