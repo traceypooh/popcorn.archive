@@ -12,19 +12,22 @@
   Popcorn.ia={};
     
   var log = function(obj){
-    if (!debug)
+    if (!debug){
       return false;
+    }
     
-    if (typeof console !='undefined')
+    if (typeof console !='undefined'){
       console.log(obj);
-
+    }
+    
     // for debugging, always return the 1st IA player!
-    for (var ret in Popcorn.ia)
+    for (var ret in Popcorn.ia){
       return Popcorn.ia[ret];
+    }
   };
-  if (debug)
+  if (debug){
     window.log = log;
-
+  }
 
 
   function HTMLArchiveVideoElement( id ) {
@@ -66,8 +69,8 @@
         duration: NaN,
         ended: false,
         paused: true,
-        width:  (parent.style.width  ? parseInt(parent.style.width)  : (parent.width |0 ? parent.width  : MIN_WIDTH  )),
-        height: (parent.style.height ? parseInt(parent.style.height) : (parent.height|0 ? parent.height : MIN_HEIGHT )),
+        width:  (parent.style.width  ? parseInt(parent.style.width ,10) : (parent.width |0 ? parent.width  : MIN_WIDTH  )),
+        height: (parent.style.height ? parseInt(parent.style.height,10) : (parent.height|0 ? parent.height : MIN_HEIGHT )),
         error: null
       };
 
@@ -90,11 +93,12 @@
     self.init = function( itemMetadata ){
         var bestfi=false;
         var audio=false;
+        var fi=null;
         //log(itemMetadata.files);
         // find best flash playable IA "derivative" for video
         for (i=0; i<itemMetadata.files.length; i++)
         {
-          var fi=itemMetadata.files[i];
+          fi=itemMetadata.files[i];
           if (fi.format=='h.264')       { bestfi = fi; break; }
           if (fi.format=='512Kb MPEG4') { bestfi = fi; break; }
         }
@@ -102,7 +106,7 @@
           // find best flash playable IA "derivative" for audio
           for (i=0; i<itemMetadata.files.length; i++)
           {
-            var fi=itemMetadata.files[i];
+            fi=itemMetadata.files[i];
             if (fi.format=='VBR MP3')     { bestfi = fi; break; }
             if (fi.format=='MP3')         { bestfi = fi; break; }
           }
@@ -127,8 +131,9 @@
           flashvars.provider="http";
           flashvars["http.startparam"]="start";
           flashvars["controlbar.idlehide"]=(debug ? false : true);
-          if (debug)
+          if (debug){
             flashvars["controlbar.position"]="bottom";
+          }
         }
         attributes = {
           "name":self.iaid
@@ -192,8 +197,9 @@
     self.stateChanged = function( obj ){
       // NOTE: also "self.flash.getConfig().state"
       log('statechanged: '+obj.oldstate+' ==> '+obj.newstate);//xxx
-      if (obj.newstate != 'PLAYING')
+      if (obj.newstate != 'PLAYING'){
         self.impl.paused = true;
+      }
     };
       
     self.timed = function( obj ){
@@ -228,21 +234,24 @@
     };
     self.play = function(){
       log('mplay');
-      if (self.flash)
+      if (self.flash){
         self.flash.sendEvent('PLAY');
+      }
       self.dispatchEvent( "play" );
       self.dispatchEvent( "playing" );
     };
     self.pause = function(){
       log('mpause');
-      if (self.flash)
+      if (self.flash){
         self.flash.sendEvent('PLAY', false);
+      }
     };
 
 
     self.isMuted = function() {
-      if (!self.playerReady) 
+      if (!self.playerReady) {
         return false;
+      }
       return (self.flash.getConfig().mute ? true : false);
     };
 
@@ -266,11 +275,12 @@
             
             // Load "swfobject.embedSWF()" utility function if not already defined previously
             // Once it's loaded, we can call "setup()"
-            if ( !window.swfobject )
+            if ( !window.swfobject ){
               Popcorn.getScript("http://archive.org/jw/popcorn/swfobject.js", self.setup);
-            else
+            }
+            else{
               self.setup();
-
+            }
             
             self.dispatchEvent( "loadstart" );
             self.dispatchEvent( "progress" );
@@ -283,18 +293,20 @@
           return self.isMuted();
         },
         set: function( val ) {
-          if (!self.playerReady)
+          if (!self.playerReady){
             return;
+          }
           
-          if ( self.isMuted() !== val ) 
+          if ( self.isMuted() !== val ) {
             self.flash.sendEvent('MUTE');
+          }
         }
       },
       volume:{
         set: function( val ) {
-          if (!self.playerReady)
+          if (!self.playerReady){
             return 1;
-          
+          }          
           var volNow = self.flash.getConfig().volume / 100;
               
           if ( !val || typeof val !== "number" || ( val < 0 || val > 1 ) ) {
@@ -309,20 +321,23 @@
           return volNow;
         },
         get: function() {
-          if (!self.playerReady)
+          if (!self.playerReady){
             return 1;
+          }
           
           return self.flash.getConfig().volume / 100;
         }
       },
       currentTime:{
         set:function( val ){
-          if (!self.playerReady)
+          if (!self.playerReady){
             return self.impl.currentTime;
+          }
           
-          if ( !val )
+          if ( !val ){
             return self.impl.currentTime;
-
+          }
+          
           self.impl.currentTime = Math.max(0,val);
           seeking = true;
 
@@ -355,7 +370,7 @@
         }
       }
     });
-  };
+  }
 
 
 
@@ -364,7 +379,7 @@
 
 
   HTMLArchiveVideoElement.prototype = new Popcorn._MediaElementProto();
-  //HTMLArchiveVideoElement.prototype.constructor = HTMLArchiveVideoElement;
+  HTMLArchiveVideoElement.prototype.constructor = HTMLArchiveVideoElement;
 
   HTMLArchiveVideoElement.prototype._canPlaySrc = function( url  ){ log('f1 '+url);return "probably"; };
   HTMLArchiveVideoElement.prototype.canPlayType = function( type ){ log('f2');return "probably"; };
