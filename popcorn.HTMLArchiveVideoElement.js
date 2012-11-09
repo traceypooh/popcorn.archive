@@ -31,6 +31,9 @@
 
 
   function HTMLArchiveVideoElement( id ) {
+    id=id.replace(/#/,''); // hack for now (in case in humph's test environ, etc.)
+    
+
     log('new HTMLArchiveVideoElement("#'+id+'")');
 
     var self = this;
@@ -48,7 +51,8 @@
     self.parentNode = parent;
 
     // Internet Archive IDentifier -- eg: "morebooks" ( see http://archive.org/details/morebooks )
-    self.iaid=null;  
+    self.iaid=null;
+    self.startend = false;
 
     var EMPTY_STRING="";
     self.playerReady=false;
@@ -94,6 +98,15 @@
         var bestfi=false;
         var audio=false;
         var fi=null;
+        
+        //debugger;
+        self._util.attribute = {
+          //eg: "PBS NewsHour : KQEH : October 24, 2012 12:00am-1:00am PDT"
+          'title':itemMetadata.metadata.title,
+          'link':self.impl.src
+        };
+        
+
         //log(itemMetadata.files);
         // find best flash playable IA "derivative" for video
         for (i=0; i<itemMetadata.files.length; i++)
@@ -114,14 +127,15 @@
         }
         log('bestfi: '+bestfi.name);
 
-    
+        var iavideo = "%2Fdownload%2F"+self.iaid + encodeURIComponent('/'+bestfi.name) + (self.startend ? encodeURIComponent(self.startend) : '');
+        log('iavideo: '+iavideo);
         var flashvars = {
           "netstreambasepath":"http%3A%2F%2Farchive.org%2F",
           "controlbar.position":(audio ? "top" : "over"),
           "playerready":"Popcorn.ia."+id+".flashReady",
           "id":id,
           "autoStart":(self.impl.autoplay ? true : false),
-          "file":"%2Fdownload%2F"+self.iaid + encodeURIComponent('/'+bestfi.name)
+          "file":iavideo
         };
         if (audio) {
           flashvars.provider="sound";
@@ -129,7 +143,7 @@
           flashvars["controlbar.idlehide"]=false;
         } else {
           flashvars.provider="http";
-          flashvars["http.startparam"]="start";
+          flashvars["http.startparam"] = (self.startend ? "ignore" : "start" ); //xxx
           flashvars["controlbar.idlehide"]=(debug ? false : true);
           if (debug){
             flashvars["controlbar.position"]="bottom";
@@ -264,13 +278,30 @@
         set: function( aSrc ) {
           if( aSrc && aSrc !== self.impl.src ) {
             self.impl.src = aSrc;
-            var tmp=aSrc.match(/archive\.org\/(details|download|embed)\/([^\/]+)/);
+            var tmp=aSrc.match(/archive\.org\/(details|download|embed)\/([^\/\#\?]+)/);
             if (!tmp  ||  tmp.length != 3){
               alert('does not appear to be a valid "http://archive.org" details, download, or embed (perma)link.  cannot proceed.');
               return;
             }
             self.iaid = tmp[2];
             log('changeSrc: '+aSrc+', iaid: '+self.iaid);
+
+            var qs=aSrc.match(/[\#\?](.*)/);
+            if (qs  &&  qs.length == 2){
+              qs=qs[1];
+              var start=0, end=0;
+              tmp = qs.match(/start[\/=]([\d\.]+)/);
+              if (tmp  &&  tmp.length==2)
+                start=tmp[1];
+              tmp = qs.match(/end[\/=]([\d\.]+)/);
+              if (tmp  &&  tmp.length==2)
+                end=tmp[1];
+              if (start  ||  end){
+                self.startend = '?start='+start + (end ? '&end='+end : '');
+                log('startend: '+self.startend);
+              }
+            }
+            
             
             
             // Load "swfobject.embedSWF()" utility function if not already defined previously
@@ -381,7 +412,12 @@
   HTMLArchiveVideoElement.prototype = new Popcorn._MediaElementProto();
   HTMLArchiveVideoElement.prototype.constructor = HTMLArchiveVideoElement;
 
-  HTMLArchiveVideoElement.prototype._canPlaySrc = function( url  ){ log('f1 '+url);return "probably"; };
+  HTMLArchiveVideoElement.prototype._canPlaySrc = function( url  ){ 
+    log('f1 '+url);
+    if (url.match(/archive\.org\/(details|download|embed)\/([^\/]+)/))
+      return "probably"; 
+    return ""; // guess we cant play!
+  };
   HTMLArchiveVideoElement.prototype.canPlayType = function( type ){ log('f2');return "probably"; };
 
   Popcorn.HTMLArchiveVideoElement = function( id ) {
@@ -395,6 +431,7 @@
   Popcorn.player( "archive", 
     {
       _canPlayType: function( nodeName, url ) {
+        log('PP canPlayType '+url);
         return ( typeof url === "string" &&
                  Popcorn.HTMLArchiveVideoElement._canPlaySrc( url ) );
       }
