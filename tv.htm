@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/stylesheets/archive.css?v=42903" type="text/css">
+    <script type="text/javascript" src="/includes/jquery-1.6.1.js"></script>
+
+
+
+    <script src="../../popcorn.js"></script>
+    <script src="../../modules/player/popcorn.player.js"></script>
+
+    <script src="../../players/youtube/popcorn.youtube.js"></script>
+
+    <script src="../../wrappers/common/popcorn._MediaElementProto.js"></script>
+    <script src="../../wrappers/archive/popcorn.HTMLArchiveVideoElement.js"></script>
+    <script src="../../wrappers/youtube/popcorn.HTMLYouTubeVideoElement.js"></script>
+
+    <script src="../../plugins/footnote/popcorn.footnote.js"></script>
+    <script src="../../plugins/image/popcorn.image.js"></script>
+    <script src="../../plugins/googlemap/popcorn.googlemap.js"></script>
+    <script src="../../plugins/flickr/popcorn.flickr.js"></script>
+
+
+    <script>
+      // ensure the web page (DOM) has loaded
+      document.addEventListener("DOMContentLoaded", function () {
+
+          // setup base player
+         Popcorn.player( "baseplayer" );
+         console.log("baseplayer");
+
+         var pop = Popcorn('#video');
+
+         // add a footnote at 2 seconds, and remove it at 6 seconds
+         pop.footnote({
+           start: 2,
+           end: 4,
+           text: "Let's get our pop on!",
+           target: "footnotediv"
+         });
+
+         // add an archive video to the right at 25 seconds
+         Popcorn.smart("archivediv",              
+                       "/ships.mov",
+                       {start: 1,
+                        end: 8});
+         
+         // add an archive video to the right at 2 seconds
+         Popcorn.smart("archivediv",              
+                       "http://archive.org/details/KQEH_20121024_070000_PBS_NewsHour#start/1509/end/1539",
+                       {start: 8,
+                        end: 28});
+
+
+         // add an archive video to the right at 2 seconds
+/*
+         Popcorn.archive("archivediv",              
+                         "http://archive.org/details/KQEH_20121024_070000_PBS_NewsHour#start/1509/end/1539",
+                         {start: 8,
+                             end: 28});
+*/
+
+         // play the base/null player right away
+         pop.play();
+
+      }, false);
+    </script>
+  </head>
+  <body class="tv">
+    <h3>be your own Jon Stewart!</h3>
+    <div id="video" style="width:640px;height:480px"> </aiv>
+    <div id="footnotediv" style="color:pink; font-size:300%; padding:20px;"></div>
+    <div id="archivediv" style="position:absolute; right:300px; top:10px; width:320px; height:240px;"></div>
+  </body>
+</html>

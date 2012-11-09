@@ -31,6 +31,11 @@
 
 
   function HTMLArchiveVideoElement( id ) {
+
+    // we might be a div object with id as attribute...
+    if (typeof(id)=="object"  &&  typeof(id.id=="string"))
+      id=id.id
+
     id=id.replace(/#/,''); // hack for now (in case in humph's test environ, etc.)
     
 
@@ -413,10 +418,12 @@
   HTMLArchiveVideoElement.prototype.constructor = HTMLArchiveVideoElement;
 
   HTMLArchiveVideoElement.prototype._canPlaySrc = function( url  ){ 
-    log('f1 '+url);
-    if (url.match(/archive\.org\/(details|download|embed)\/([^\/]+)/))
-      return "probably"; 
-    return ""; // guess we cant play!
+    var ret="probably";
+    if (!url.match(/archive\.org\/(details|download|embed)\/([^\/]+)/))
+      ret=""; // guess we cant play!
+
+    log('f1 '+url+' ==> '+ret);
+    return ret;
   };
   HTMLArchiveVideoElement.prototype.canPlayType = function( type ){ log('f2');return "probably"; };
 
