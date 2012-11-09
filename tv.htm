@@ -23,40 +23,53 @@
 
   </head>
   <body class="tv">
-    <h3>be your own Jon Stewart!</h3>
+    <h3 style="position:fixed; top:5px; left:50px; z-index:10;">Be your own Jon Stewart!</h3>
     <div id="vv" style="width:320px; height:240px;"> </div>
     <div id="footdiv" style="color:pink; font-size:300%; padding:20px;"></div>
+    <div id="extra"   style="position:absolute; z-index:10; right:10px; top:10px; width:100px;"></div>
+    <div id="bplayer" style="width:10px; height:10px;"> </div>
 
 
     <script>
-var pop = Popcorn('#vv');
-
-// play the base/null player right away
-pop.play();
+var pop = Popcorn('#bplayer');
 
 // setup base player
 Popcorn.player( "baseplayer" );
 log("baseplayer xxx");
+
+             
+
+// play the base/null player right away
+pop.play();
+
+
+// add an archive video to the right at 25 seconds
+var p2=Popcorn.smart("#vv", "/ships.mp4");
+p2.play();
+
 
 // add a footnote at 2 seconds, and remove it at 6 seconds
 pop.footnote({
   start: 2,
   end: 4,
   text: "Let's get our pop on!",
-  target: "#footdiv"
+  target: "footdiv"
 });
            
-             
+pop.flickr({
+  start: 5, // seconds
+  end: 40, // seconds
+  tags: "sinking ships",
+  numberofimages: "20",
+  target: "extra"
+});
 
-// add an archive video to the right at 25 seconds
-var p2=Popcorn.smart("#vv", "/ships.mp4");
-p2.play();
 
          
 // add an archive video to the right at 2 seconds
 setTimeout(function(){
   Popcorn.smart("#vv",              
-                "http://archive.org/details/KQEH_20121024_070000_PBS_NewsHour#start/1509/end/1539");
+                "http://archive.org/details/KQEH_20121024_070000_PBS_NewsHour#start/1509/end/1537");
   }, 5000);
 
 </script>
